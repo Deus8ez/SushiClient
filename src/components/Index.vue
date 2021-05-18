@@ -84,10 +84,36 @@
         <div id="pick-window" class="prebuilt-element" >
             <h2>Pick a set</h2>
             <ol>
-                <li v-for="set in mockSetList" :key=set.id>
-                    <p>{{set.text}}</p>
-                    <p>cost: {{set.cost}}$</p>
-                    <button v-on:click="onAddToCart(set)">Add to cart</button>
+                <li class="main-list" v-for="set in mockSetList" :key=set.id>
+                    <div class="item-window">
+                        <div class="set-col">
+                            <ol>
+                                <li>
+                                    <p>{{set.text}}</p>                                  
+                                </li>
+                                <li>
+                                    <img src="" alt="">
+                                </li>
+                                <li>
+                                    <p>{{ set.rating }} star(s)</p>                                   
+                                </li>
+                                <li>
+                                    <p>cost: {{set.cost}}$</p>                                   
+                                </li>
+                                <li>
+                                    <button v-on:click="onAddToCart(set)">Add to cart</button>                                
+                                </li>
+                                <li>
+                                    <h3>Sushis in set:</h3>                                   
+                                </li>                                
+                            </ol>
+                            <ol class="sushi-desc">
+                                <li v-for="sushi in set.sushis" :key=sushi.id>
+                                    <p>{{sushi.text}}, cost per piece: {{sushi.costPerPiece}}</p>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
                 </li>
             </ol>
         </div>
@@ -104,11 +130,11 @@
             </div>
             <div class="col">
                 <h2>Your build</h2>
-                <input v-model="userBuildName" type="text" placeholder="Enter your build name">
+                <input v-model="customerBuildName" type="text" placeholder="Enter your build name">
                     <p>Build cost: {{totalBuildCost}} $</p>
                     <ol>
                         <li v-for="item in buildItems" :key=item.id>
-                            {{item.text}}, cost per piece: {{item.costPerPiece}}, amount: {{item.amount}}
+                            <p>{{item.text}}, cost per piece: {{item.costPerPiece}}, amount: {{item.amount}}</p>
                             <button v-on:click="removeFromBuild(item)">Remove from build</button>
                         </li>
                     </ol>
@@ -178,7 +204,34 @@
         <div id="rating-window" class="prebuilt-element" >
             <form @submit.prevent="rate" method="post">
                 <h2>Rate sets</h2>
-                
+                <ol>
+                    <li class="main-list" v-for="set in mockSetList" :key=set.id>
+                        <div class="item-window">
+                            <div class="set-col">
+                                <ol>
+                                    <li>
+                                        <p>{{set.text}}</p>                                  
+                                    </li>
+                                    <li>
+                                        <img src="" alt="">
+                                    </li>
+                                    <li>
+                                        <select v-model="set.rating" name="rating" id="">
+                                            <option value="1">&#11088;</option>
+                                            <option value="2">&#11088;&#11088;</option>
+                                            <option value="3">&#11088;&#11088;&#11088;</option>
+                                            <option value="4">&#11088;&#11088;&#11088;&#11088;</option>
+                                            <option value="5">&#11088;&#11088;&#11088;&#11088;&#11088;</option>
+                                        </select>                                  
+                                    </li>                             
+                                </ol>
+                            </div>
+                        </div>
+                    </li>
+                </ol>
+                <ol>
+                    <li><input type="submit" value="Rate sets"></li>
+                </ol>
             </form>
         </div>
         <div class="prebuilt-element">
@@ -207,17 +260,32 @@ export default {
             { 
                 id: 1, 
                 text: 'Boston', 
-                cost: 40    
+                cost: 40,
+                rating: 1,
+                sushis: [
+                    {id: 1, text: 'California', costPerPiece: 2, amount: 10},
+                    {id: 2, text: 'Philadelphia', costPerPiece: 4, amount: 5}
+                ]           
             },
             { 
                 id: 2, 
                 text: 'Adfg', 
-                cost: 30
+                cost: 30,
+                rating: 2,
+                sushis: [
+                    {id: 1, text: 'California', costPerPiece: 2, amount: 10},
+                    {id: 2, text: 'Philadelphia', costPerPiece: 4, amount: 5}
+                ]       
             },
             { 
                 id: 3,
                 text: 'Banzai', 
-                cost: 20
+                cost: 20,
+                rating: 2,
+                sushis: [
+                    {id: 1, text: 'California', costPerPiece: 2, amount: 10},
+                    {id: 2, text: 'Philadelphia', costPerPiece: 4, amount: 5}
+                ]       
             }],
             mockSushiList: [
                 { id: 1, text: 'California', costPerPiece: 2, amount: 1},
@@ -330,12 +398,16 @@ export default {
             console.log(this.buildItems)
         },
         removeFromBuild: function (sushi){
-            this.buildItems.splice(this.buildItems.indexOf(sushi), 1) 
-            this.totalBuildCost -= sushi.costPerPiece
+            var item = this.buildItems.find(el => el == sushi)
+
+            this.buildItems.splice(this.buildItems.indexOf(sushi), 1)
+
+            this.totalBuildCost -= (sushi.costPerPiece * item.amount)
+            item.amount = 1
             console.log(this.buildItems)
         },
         buildAndAddToCart: function (){
-            if(this.userBuildName == ''){
+            if(this.customerBuildName == ''){
                 alert("Enter build name")
                 return
             }
@@ -343,7 +415,7 @@ export default {
             this.onAddToCart(
                 {
                     id: 0,
-                    text: this.userBuildName,
+                    text: this.customerBuildName,
                     cost: this.totalBuildCost,
                     sushis: this.buildItems
                 }
@@ -390,6 +462,35 @@ export default {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed');
+
+html, body {
+  font-family: 'Roboto', sans-serif;
+}
+
+
+
+body {
+    padding-top: 2vh;
+    height: 100vh;
+    width: 100vw;
+    background: ghostwhite;
+    margin: 0;
+}
+
+#app {
+  font-family: 'Roboto', sans-serif;
+}
+
+button{
+    border-radius: 5px;
+}
+
+button:hover{
+    color:peru;
+    cursor: pointer;
+}
+
 .nav-element{
     display: inline-block;
     padding: 0.5vh;
@@ -418,7 +519,7 @@ export default {
 
 #build-window, #checkout-window, #registration-window, #login-window, #rating-window{
     display: none;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 2fr;
 }
 
 #logout-button{
@@ -437,5 +538,21 @@ th{
 
 ol{
     list-style-type: none;
+    max-height:70vh;
+    overflow:auto;
+    width: 40vh;
+    padding-left: 0;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
 }
+
+.main-list{
+    border-bottom: 1px dashed #000;
+}
+
+.item-window{
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+}
+
 </style>
