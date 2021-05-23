@@ -2,7 +2,9 @@
 <body>
     <header>
         <div class="title">
-            <h1>Sushi Builder</h1>           
+            <div>
+                <h1>Sushi Builder</h1>    
+            </div>
         </div>
         <div class="navigation">
             <div class="col">
@@ -35,7 +37,7 @@
     <div id="main-page">
         <div id="checkout-window" class="prebuilt-element" >
             <h2>Checkout</h2>
-            <form action="">
+            <form @submit.prevent="placeOrder" method="post">
                 <table>
                     <tr>
                         <td>
@@ -46,7 +48,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <input v-model="userPhoneNumber" type="number">
+                            <input v-model="customerPhoneNumber" type="number">
                         </td>
                     </tr>
                     <tr>
@@ -58,7 +60,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <input v-model="userName" type="text">
+                            <input v-model="customerName" type="text">
                         </td>
                     </tr>
                     <tr>
@@ -70,9 +72,12 @@
                     </tr>
                     <tr>
                         <td>
-                            <input v-model="userAdress" type="text">
+                            <input v-model="customerAddress" type="text">
                         </td>
                     </tr>
+                    <tr>
+                        <td></td>
+                    </tr>        
                     <tr>
                         <td>
                             <input type="submit">
@@ -83,25 +88,57 @@
         </div>
         <div id="pick-window" class="prebuilt-element" >
             <h2>Pick a set</h2>
-            <ol>
+
+            <div class="container">
+                <div class="item" v-for="set in mockSetList" :key=set.id>
+                    <ol>
+                        <li style="text-align:left">
+                            <h3>{{set.set.name}}</h3>                                  
+                        </li>
+                        <li>
+                            <img class="setImg" :src="getSetImg(set.set.name, set.set.custom)" alt="" onerror="../assets/default.png">
+                        </li>
+                        <li>
+                            <p>{{ set.set.rating == null ? 0 : set.set.rating}} star(s)</p>                                   
+                        </li>
+                        <li>
+                            <p>cost: {{set.set.cost}}$</p>                                   
+                        </li>
+                        <li>
+                            <button v-on:click="onAddToCart(set.set)">Add to cart</button>                                
+                        </li>
+                        <li>
+                            <h3>Sushis in set:</h3>                                   
+                        </li>                                
+                    </ol>
+                    <ol class="sushi-desc">
+                        <li v-for="sushi in set.sushis" :key=sushi.id>
+                            <p>{{sushi.name}}, cost per piece: {{sushi.costPerPiece}}, amount: {{sushi.amount}}</p>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+
+            <!-- <ol class="pickOl">
                 <li class="main-list" v-for="set in mockSetList" :key=set.id>
                     <div class="item-window">
                         <div class="set-col">
                             <ol>
                                 <li>
-                                    <p>{{set.text}}</p>                                  
+                                    <p>{{set.set.name}}</p>                                  
                                 </li>
                                 <li>
-                                    <img src="" alt="">
+                                    <img class="setImg" :src="getSetImg(set.set.name, set.set.custom)" alt="" onerror="../assets/default.png">
                                 </li>
                                 <li>
-                                    <p>{{ set.rating }} star(s)</p>                                   
+                                    <p>{{ set.set.rating == null ? 0 : set.set.rating}} star(s)</p>                                   
                                 </li>
                                 <li>
-                                    <p>cost: {{set.cost}}$</p>                                   
+                                    <p>cost: {{set.set.cost}}$</p>                                   
                                 </li>
                                 <li>
-                                    <button v-on:click="onAddToCart(set)">Add to cart</button>                                
+                                    <button v-on:click="onAddToCart(set.set)">Add to cart</button>                                
                                 </li>
                                 <li>
                                     <h3>Sushis in set:</h3>                                   
@@ -109,32 +146,48 @@
                             </ol>
                             <ol class="sushi-desc">
                                 <li v-for="sushi in set.sushis" :key=sushi.id>
-                                    <p>{{sushi.text}}, cost per piece: {{sushi.costPerPiece}}</p>
+                                    <p>{{sushi.name}}, cost per piece: {{sushi.costPerPiece}}</p>
                                 </li>
                             </ol>
                         </div>
                     </div>
                 </li>
-            </ol>
+            </ol> -->
+
+
+
+
+
         </div>
         <div id="build-window" class="prebuilt-element" >
             <div class="col">
                 <h2>Build a set</h2>
-                <ol>
+                <ol class="pickOl">
                     <li v-for="set in mockSushiList" :key=set.id>
-                        <p>{{set.text}}</p>
-                        <p>cost per piece: {{set.costPerPiece}}$</p>
-                        <button v-on:click="addToBuild(set)">Add to cart</button>
+                        <ol>
+                            <li>
+                                <p>{{set.name}}</p>
+                            </li>
+                            <li>
+                                <img class="setImg" :src="getSushiImg(set.name)" alt="">                               
+                            </li>
+                            <li>
+                                <p>cost per piece: {{set.costPerPiece}}$</p>               
+                            </li>
+                            <li>
+                                <button v-on:click="addToBuild(set)">Add to cart</button>                               
+                            </li>
+                        </ol>
                     </li>
                 </ol>
             </div>
-            <div class="col">
+            <div  style="margin-left: 10vh;" class="col">
                 <h2>Your build</h2>
                 <input v-model="customerBuildName" type="text" placeholder="Enter your build name">
                     <p>Build cost: {{totalBuildCost}} $</p>
                     <ol>
                         <li v-for="item in buildItems" :key=item.id>
-                            <p>{{item.text}}, cost per piece: {{item.costPerPiece}}, amount: {{item.amount}}</p>
+                            <p>{{item.name}}, cost per piece: {{item.costPerPiece}}, amount: {{item.amount}}</p>
                             <button v-on:click="removeFromBuild(item)">Remove from build</button>
                         </li>
                     </ol>
@@ -171,7 +224,7 @@
                     <li>
                         <input v-model="userPassCheck" type="text" name="" id="">
                     </li>
-                    <li>
+                    <li style="margin-top: 1vh;">
                         <input type="submit">
                     </li>
                 </ol>
@@ -195,25 +248,55 @@
                     <li>
                         <input v-model="userPassword" type="text">
                     </li>
-                    <li>
+                    <li style="margin-top: 1vh;">
                         <input type="submit">
                     </li>
                 </ol>
             </form>
         </div>
         <div id="rating-window" class="prebuilt-element" >
-            <form @submit.prevent="rate" method="post">
                 <h2>Rate sets</h2>
-                <ol>
+                <div class="container">
+                    <div class="item" v-for="set in mockSetList" :key=set.id>
+                        <form @submit.prevent="rateSet" method="post">
+                            <ol>
+                                <li>
+                                    <input v-model="set.set.id" type="number" style="display: none" name="setId">
+                                </li>
+                                <li>
+                                    <p>{{set.set.name}}</p>                                  
+                                </li>
+                                <li>
+                                    <img class="setImg" :src="getSetImg(set.set.name, set.set.custom)" alt="">
+                                </li>
+                                <li style="margin-top: 1vh;">
+                                    <select v-model="set.set.rating" name="setRating" id="" >
+                                        <option value="1">&#11088;</option>
+                                        <option value="2">&#11088;&#11088;</option>
+                                        <option value="3">&#11088;&#11088;&#11088;</option>
+                                        <option value="4">&#11088;&#11088;&#11088;&#11088;</option>
+                                        <option value="5">&#11088;&#11088;&#11088;&#11088;&#11088;</option>
+                                    </select>                                  
+                                </li>
+                                <li style="margin-top: 1vh;">
+                                    <input type="submit" value="Rate">
+                                </li>
+                            </ol>
+                        </form>
+                    </div>
+                </div>
+
+
+                <!-- <ol class="pickOl">
                     <li class="main-list" v-for="set in mockSetList" :key=set.id>
                         <div class="item-window">
                             <div class="set-col">
                                 <ol>
                                     <li>
-                                        <p>{{set.text}}</p>                                  
+                                        <p>{{set.name}}</p>                                  
                                     </li>
                                     <li>
-                                        <img src="" alt="">
+                                        <img class="setImg" :src="getSetImg(set.name, set.custom)" alt="">
                                     </li>
                                     <li>
                                         <select v-model="set.rating" name="rating" id="">
@@ -231,21 +314,25 @@
                 </ol>
                 <ol>
                     <li><input type="submit" value="Rate sets"></li>
-                </ol>
-            </form>
+                </ol> -->
         </div>
         <div class="prebuilt-element">
             <h2>Your cart</h2>
             <p>{{totalCost}} $</p>
-            <ol>
-                <li v-for="pickedSet in clickedItems" v-bind:key="pickedSet.id">
-                    {{pickedSet.text}}
+            <ol style="padding-left: 0">
+                <li style="margin-top: 1vh;" v-for="pickedSet in clickedItems" v-bind:key="pickedSet.id">
+                    {{pickedSet.name}}
                     <button v-on:click="removeFromCart(pickedSet)">Remove from cart</button>
                 </li>
             </ol>
             <button v-on:click="showCheckout()">Checkout</button>
         </div>
     </div>
+    <footer>
+        <div style="padding-top: 2vh;">
+            <a href="http://vk.com/darkhan.mukhtar">Contact me</a>
+        </div>
+    </footer>
 </body>
 </template>
 
@@ -255,45 +342,15 @@ export default {
     name: 'MainPage',
     data(){
         return{
-            setList: [],
-            mockSetList: [
-            { 
-                id: 1, 
-                text: 'Boston', 
-                cost: 40,
-                rating: 1,
-                sushis: [
-                    {id: 1, text: 'California', costPerPiece: 2, amount: 10},
-                    {id: 2, text: 'Philadelphia', costPerPiece: 4, amount: 5}
-                ]           
-            },
-            { 
-                id: 2, 
-                text: 'Adfg', 
-                cost: 30,
-                rating: 2,
-                sushis: [
-                    {id: 1, text: 'California', costPerPiece: 2, amount: 10},
-                    {id: 2, text: 'Philadelphia', costPerPiece: 4, amount: 5}
-                ]       
-            },
-            { 
-                id: 3,
-                text: 'Banzai', 
-                cost: 20,
-                rating: 2,
-                sushis: [
-                    {id: 1, text: 'California', costPerPiece: 2, amount: 10},
-                    {id: 2, text: 'Philadelphia', costPerPiece: 4, amount: 5}
-                ]       
-            }],
-            mockSushiList: [
-                { id: 1, text: 'California', costPerPiece: 2, amount: 1},
-                { id: 2, text: 'Philadelphia', costPerPiece: 4, amount: 1},
-                { id: 3, text: 'Chicken', costPerPiece: 6, amount: 1},
-                { id: 4, text: 'Schrimp', costPerPiece: 8, amount: 1},
-                { id: 5, text: 'Caesar', costPerPiece: 10, amount: 1}
+            setList: [
+                {
+                    id: 0,
+                    name: "Magura"
+                }
             ],
+            mockSetList: [],
+            mockSushiList: [],
+            data: [],
             sushiList: [],
             clickedItems: [],
             buildItems: [],
@@ -301,13 +358,16 @@ export default {
             totalBuildCost: 0,
             customerName: '',
             customerBuildName: '',
-            customerAdress: '',
+            customerAddress: '',
             customerPhoneNumber: '',
             userName: '',
             userEmail: '',
             userPassword: '',
             userPassCheck: '',
             loggedInUserNick: '',
+            API: 'https://localhost:5001/api/',
+            ratedSetId: '',
+            ratedSetRating: ''
         }
     },
     methods: {
@@ -318,6 +378,7 @@ export default {
             document.getElementById("registration-window").style.display = "none"
             document.getElementById("login-window").style.display = "none"
             document.getElementById("rating-window").style.display = "none"
+            this.getProducts()
         },
         showBuild: function(){
             document.getElementById("pick-window").style.display = "none"
@@ -363,7 +424,7 @@ export default {
             } else{
                 document.getElementById("register-button").style.display = "inline-block"
                 document.getElementById("login-button").style.display = "inline-block" 
-                 document.getElementById("logout-button").style.display = "none" 
+                document.getElementById("logout-button").style.display = "none" 
             }
  
         },
@@ -412,12 +473,18 @@ export default {
                 return
             }
 
+            if(this.buildItems.length == 0){
+                alert("Add items")
+                return
+            }
+
             this.onAddToCart(
                 {
                     id: 0,
-                    text: this.customerBuildName,
+                    name: this.customerBuildName,
                     cost: this.totalBuildCost,
-                    sushis: this.buildItems
+                    sushis: this.buildItems,
+                    custom: true
                 }
             )
         },
@@ -429,33 +496,131 @@ export default {
             }
         }, 
         handleRegistration: async function () {
-            this.axios.post('https://localhost:5001/api/' + 'users', {
+            this.axios.post(this.API + 'users', {
                 nickname: this.userName,
                 email: this.userEmail,
                 password: this.userPassword
             }).then(response => console.log(response));
         },
         handleLogin: async function () {
-            this.axios.post('https://localhost:5001/api/' + 'users/' + 'login', {
+            this.axios.post(this.API + 'users/' + 'login', {
                 email: this.userEmail,
                 password: this.userPassword
             }).then(response => 
-                {
-                    console.log(response)
-                    
+                {                   
                     if(response.data.token){
                     localStorage.setItem('user', JSON.stringify(response.data))}
                     this.loggedInUserNick = response.data.userNickname
                     this.toggleButtons()
+                    this.showRatingWindow()
                 });
         },
         logout: async function() {
             localStorage.removeItem('user')
             this.toggleButtons()
+            this.loggedInUserNick = ""
+            alert("please log in to rate sets")
+            this.showPick()
+
+        },
+        checkIfUserLoggedIn: function(){
+            if(localStorage.getItem("user") === null){
+                document.getElementById("register-button").style.display = "inline-block"
+                document.getElementById("login-button").style.display = "inline-block" 
+                document.getElementById("logout-button").style.display = "none"
+            } else {
+                document.getElementById("register-button").style.display = "none"
+                document.getElementById("login-button").style.display = "none" 
+                document.getElementById("logout-button").style.display = "inline-block"
+            }
+        },
+        placeOrder: async function(){
+
+            var setArr = []
+
+            this.clickedItems.forEach(e => {
+                setArr.push({
+                    Set: {
+                        ID: e.id,
+                        Name: e.name,
+                        Cost: e.cost,
+                        Rating: e.rating,
+                        Custom: e.custom
+                    },
+                    Sushis: e.sushis
+                })
+            });
+
+            console.log(setArr)
+
+            var ob = {
+                Customer: {
+                    CustomerName: this.customerName,
+                    CustomerPhoneNumber: this.customerPhoneNumber,
+                    CustomerAddress: this.customerAddress
+                },
+                OrderPlaced: new Date().toJSON().slice(0,10).replace(/-/g,'/'),
+                Payment: this.totalCost,
+                Sets: setArr
+            }
+
+            console.log(ob)
+
+            this.axios.post(this.API + 'Main', 
+                {
+                    Customer: {
+                        CustomerName: this.customerName,
+                        CustomerPhoneNumber: this.customerPhoneNumber,
+                        CustomerAddress: this.customerAddress
+                    },
+                    OrderPlaced: new Date().toJSON().slice(0,10).replace(/-/g,'/'),
+                    Payment: this.totalCost,
+                    Sets: setArr
+                }
+            ).then(r => {alert("Order is submitted"); console.log(r)}, er => {alert("Error"); console.log(er)})
+            this.emptyCard()
+            this.showPick()
+        },
+        emptyCard: function(){
+            this.clickedItems.splice(0, this.clickedItems.length)
+            this.buildItems.splice(0, this.buildItems.length)
+            this.totalBuildCost = 0
+            this.totalCost = 0
+        },
+        getProducts: async function(){
+            await this.axios.get(this.API + 'Main').then(res =>{ console.log(res.data); this.mockSetList = res.data.sets; this.mockSushiList = res.data.sushis})    
+        },
+        getSetImg: function (name, custom){
+            if(custom == false){
+                return require('../assets/' + name + '.png')
+            } else {
+                return require('../assets/default.png')
+            }
+        },
+        getSushiImg: function (name){
+            return require('../assets/' + name + '.png')
+        },
+        rateSet: async function(e){
+            
+            await this.axios.post(this.API + 'main/rate', 
+                {                   
+                    SetID: e.target.elements.setId.value,
+                    Rating: e.target.elements.setRating.value         
+                }
+            ).then(r => {alert("Rating was sent"); console.log(r); this.getProducts()}, er => {alert("Error"); console.log(er)})
+            
         }
     },
-    mounted(){
-        this.axios.get('https://localhost:5001/api/' + 'Main').then(response => console.log(response))
+    beforeMount(){
+        this.getProducts()
+    },
+    mounted(){       
+        var storageItem = localStorage.getItem("user")
+        if(storageItem != null){
+            this.loggedInUserNick = (JSON.parse(localStorage.getItem("user"))).userNickname
+        }
+        this.checkIfUserLoggedIn()
+        console.log(this.data)                            
     }
 }
 
@@ -464,19 +629,36 @@ export default {
 <style scoped>
 @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed');
 
-html, body {
-  font-family: 'Roboto', sans-serif;
+html{
+    background: ghostwhite;
+    
 }
 
-
-
 body {
+    font-family: 'Roboto', sans-serif;
     padding-top: 2vh;
-    height: 100vh;
+    height: 100%;
     width: 100vw;
     background: ghostwhite;
     margin: 0;
 }
+
+footer {
+  height: 50px;
+  flex-shrink: 0;
+  background-color: moccasin;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+a{
+    text-decoration: none;
+}
+
+#checkout-window{
+    margin-bottom: 35vh;
+}
+
 
 #app {
   font-family: 'Roboto', sans-serif;
@@ -484,6 +666,23 @@ body {
 
 button{
     border-radius: 5px;
+}
+
+.container{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    max-height:80vh;
+    overflow:auto;
+    text-align: left;
+    margin-right: 5vh;
+}
+
+ol{
+    padding-left: 0
+}
+
+select{
+    border-radius: 0.3vh;;
 }
 
 button:hover{
@@ -507,6 +706,7 @@ button:hover{
 .navigation{
     text-align: left;
     margin-left: 20vh;
+    margin-top: 3vh;
     display: grid;
     grid-template-columns: 3fr 1fr;
 }
@@ -520,6 +720,14 @@ button:hover{
 #build-window, #checkout-window, #registration-window, #login-window, #rating-window{
     display: none;
     grid-template-columns: 1fr 2fr;
+}
+
+#registration-window, #login-window{
+    margin-bottom: 35vh;
+}
+
+#login-window{
+    margin-bottom: 46vh;
 }
 
 #logout-button{
@@ -536,14 +744,29 @@ th{
     text-align: left;
 }
 
-ol{
+.pickOl{
     list-style-type: none;
     max-height:70vh;
     overflow:auto;
-    width: 40vh;
+    width: 60vh;
     padding-left: 0;
     padding-top: 1vh;
     padding-bottom: 1vh;
+}
+
+ol{
+    list-style-type: none;
+    padding: auto
+}
+
+
+input{
+    border-radius: 1vh;
+}
+
+.title{
+    border-bottom-style: solid;
+    border-bottom-color: rgb(231, 208, 78);
 }
 
 .main-list{
@@ -553,6 +776,24 @@ ol{
 .item-window{
     display: grid;
     grid-template-columns: 2fr 1fr;
+} 
+
+.item-window:after{
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.set-col{
+    float: left;
+    width: 50%;
+    padding: 10px;
+}
+
+.setImg{
+    width: 38vh;
+    height: 30vh;
+    border-radius: 2vh;
 }
 
 </style>
