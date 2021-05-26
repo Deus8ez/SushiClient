@@ -54,7 +54,6 @@ export default {
                         this.$store.commit("login")
                     }
                 });
-
         },
     }
 }

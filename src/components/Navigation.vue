@@ -62,6 +62,13 @@ export default {
             this.showPick()
             alert("please log in to rate sets")
         }
+    },
+    mounted(){
+        if(localStorage.getItem("user") !== null){
+            var x = JSON.parse(localStorage.getItem("user"))
+            this.$store.commit("toggleButtons")
+            this.$store.state.loggedInUserNick = x.userNickname
+        }
     }
 }
 </script>
