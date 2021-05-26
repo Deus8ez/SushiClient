@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "myapp",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,7 +11,8 @@
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "vue": "^3.0.0",
-    "vue-axios": "^3.2.4"
+    "vue-axios": "^3.2.4",
+    "vuex": "^4.0.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -40,5 +41,17 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "description": "```\r npm install\r ```",
+  "main": "babel.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Deus8ez/SushiClient.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Deus8ez/SushiClient/issues"
+  },
+  "homepage": "https://github.com/Deus8ez/SushiClient#readme"
 }
